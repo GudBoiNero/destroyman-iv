@@ -3,6 +3,7 @@
 import { Client, Events, GatewayIntentBits, Message, REST as DiscordRestClient, Routes } from "discord.js";
 import dotenv from "dotenv";
 import { InteractionHandler } from "./client/interactionHandler";
+import { test } from "./util/data";
 dotenv.config();
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN || "";
@@ -35,6 +36,7 @@ class Application {
             .catch((err) => {
                 console.error("Error starting bot", err);
             });
+        test()
     }
 
     registerSlashCommands() {
