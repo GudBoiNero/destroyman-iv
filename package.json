@@ -1,7 +1,7 @@
 {
   "name": "moonseye",
   "version": "1.0.0",
-  "description": "",
+  "description": "A Discord Bot made to query information about Deepwoken.",
   "main": "src/main.ts",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
