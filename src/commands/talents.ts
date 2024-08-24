@@ -3,7 +3,7 @@ import {
     ChatInputCommandInteraction,
     CacheType,
 } from "discord.js";
-import { Command } from "../util/command";
+import { Command } from "../client/command";
 
 export class TalentsCommand implements Command {
     name = "talents";

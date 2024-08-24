@@ -1,5 +1,4 @@
-import { ChatInputCommandInteraction } from "discord.js";
-import { Command } from "./command";
+import { Command } from "../client/command";
 import { TalentsCommand } from "../commands/talents";
 
 export class InteractionHandler {
