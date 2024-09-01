@@ -1,9 +1,8 @@
 // src/main.ts
 
-import { Client, Events, GatewayIntentBits, Message, REST as DiscordRestClient, Routes } from "discord.js";
+import { Client, Events, GatewayIntentBits, Message, REST as DiscordRestClient, Routes, ChatInputCommandInteraction } from "discord.js";
 import dotenv from "dotenv";
 import { InteractionHandler } from "./client/interactionHandler";
-import { test } from "./util/data";
 dotenv.config();
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN || "";
@@ -36,7 +35,6 @@ class Application {
             .catch((err) => {
                 console.error("Error starting bot", err);
             });
-        test()
     }
 
     registerSlashCommands() {
@@ -67,6 +65,12 @@ class Application {
 
         this.client.on(Events.Error, (err: Error) => {
             console.error("Client error", err);
+        });
+
+        this.client.on(Events.InteractionCreate, (interaction) => {
+            this.interactionHandler.handleInteraction(
+                interaction as ChatInputCommandInteraction
+            );
         });
     }
 }
