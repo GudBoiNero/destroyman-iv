@@ -2,7 +2,7 @@ import { ChatInputCommandInteraction } from "discord.js";
 import { Command } from "../client/command";
 import { TalentsCommand } from "../commands/talents";
 
-export class InteractionHandler {
+export class CommandHandler {
   private commands: Command[];
 
   constructor() {
@@ -15,9 +15,14 @@ export class InteractionHandler {
     );
   }
 
-  async handleInteraction(
+  async handleCommandInteraction(
     interaction: ChatInputCommandInteraction
   ): Promise<void> {
+    // Don't respond to self, or other bots
+    if (interaction.user.id === interaction.client.user?.id || interaction.user.bot) {
+      return;
+    }
+
     const commandName = interaction.commandName;
 
     const matchedCommand = this.commands.find(
@@ -32,7 +37,7 @@ export class InteractionHandler {
       .execute(interaction)
       .then(() => {
         console.log(
-          `Sucesfully executed command [/${interaction.commandName}]`,
+          `Succesfully executed command [/${interaction.commandName}]`,
           {
             guild: { id: interaction.guildId, name: interaction.guild?.name },
             user: { name: interaction.user.globalName },

@@ -2,10 +2,13 @@ import {
     SlashCommandBuilder,
     ChatInputCommandInteraction,
     CacheType,
+    Embed,
+    EmbedBuilder,
 } from "discord.js";
 import { Command } from "../client/command";
-import { getAllTalents } from "dwapi-wrapper";
+import { getAllTalents, TalentObject } from "dwapi-wrapper";
 import { QueryParser } from "../util/query";
+import { Pagination } from "pagination.djs";
 
 export class TalentsCommand implements Command {
     name = "talents";
@@ -34,7 +37,35 @@ export class TalentsCommand implements Command {
         const parser = new QueryParser(interaction)
         const talents = await getAllTalents()
 
+        const name = parser.getOption('name')
+        const category = parser.getOption('category')
+        const description = parser.getOption('description')
+        const rarity = parser.getOption('rarity')
 
-        return interaction.reply("```json\n" + JSON.stringify(talents[0], null, "\t") + "```");
+        const pages = this.buildTalentsPages(talents)
+        const pagination = new Pagination(interaction)
+        pagination.addEmbeds(pages)
+        pagination.paginateFields(true)
+        return pagination.render()
+    }
+
+    buildTalentsPages = (entries: TalentObject[]): EmbedBuilder[] => {
+        let pages: EmbedBuilder[] = []
+
+        for (const talent of entries) {
+            const embed = new EmbedBuilder()
+                .setColor(0x0099FF)
+                .setTitle(talent.name)
+                .setTimestamp()
+                .addFields(
+                    { name: 'Description:', value: '```' + `${talent.description}` + '```' },
+                    { name: 'Category:', value: '```' + `${talent.category}` + '```', inline: true },
+                    { name: 'Rarity:', value: '```' + `${talent.rarity}` + '```', inline: true }
+                )
+
+            pages.push(embed)
+        }
+
+        return pages
     }
 }

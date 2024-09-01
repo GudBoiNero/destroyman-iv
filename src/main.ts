@@ -1,8 +1,8 @@
 // src/main.ts
 
-import { Client, Events, GatewayIntentBits, Message, REST as DiscordRestClient, Routes, ChatInputCommandInteraction } from "discord.js";
+import { Client, Events, GatewayIntentBits, Message, REST as DiscordRestClient, Routes, ChatInputCommandInteraction, CommandInteraction } from "discord.js";
 import dotenv from "dotenv";
-import { InteractionHandler } from "./client/interactionHandler";
+import { CommandHandler } from "./client/commandHandler";
 dotenv.config();
 
 const DISCORD_TOKEN = process.env.DISCORD_TOKEN || "";
@@ -11,7 +11,7 @@ const DISCORD_APP_ID = process.env.DISCORD_APP_ID || "";
 class Application {
     private client: Client;
     private discordRestClient: DiscordRestClient;
-    private interactionHandler: InteractionHandler;
+    private commandHandler: CommandHandler;
 
     constructor() {
         this.client = new Client({
@@ -22,7 +22,7 @@ class Application {
             failIfNotExists: false,
         });
         this.discordRestClient = new DiscordRestClient().setToken(DISCORD_TOKEN);
-        this.interactionHandler = new InteractionHandler();
+        this.commandHandler = new CommandHandler();
     }
 
     start() {
@@ -38,7 +38,7 @@ class Application {
     }
 
     registerSlashCommands() {
-        const commands = this.interactionHandler.getSlashCommands();
+        const commands = this.commandHandler.getSlashCommands();
         this.discordRestClient
             .put(Routes.applicationCommands(DISCORD_APP_ID), {
                 body: commands,
@@ -67,10 +67,11 @@ class Application {
             console.error("Client error", err);
         });
 
-        this.client.on(Events.InteractionCreate, (interaction) => {
-            this.interactionHandler.handleInteraction(
-                interaction as ChatInputCommandInteraction
-            );
+        this.client.on(Events.InteractionCreate, async (interaction) => {
+            if (interaction instanceof CommandInteraction)
+                await this.commandHandler.handleCommandInteraction(
+                    interaction as ChatInputCommandInteraction
+                );
         });
     }
 }
