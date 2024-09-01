@@ -29,23 +29,40 @@ export class TalentsCommand implements Command {
             option.setName('rarity')
                 .addChoices({ name: 'common', value: 'common' }, { name: 'rare', value: 'rare' }, { name: 'advanced', value: 'advanced' }, { name: 'oath', value: 'oath' }, { name: 'quest', value: 'quest' })
                 .setDescription('The type of card to search for...'))
-        .setDescription('Replies with data based on the input.')
+        .addStringOption(option =>
+            option.setName('requirements')
+                .setDescription('The requirements of the card to search for...'))
 
     async execute(
         interaction: ChatInputCommandInteraction<CacheType>
     ): Promise<any> {
-        const parser = new QueryParser(interaction)
-        const talents = await getAllTalents()
+        let talents = await getAllTalents()
 
-        const name = parser.getOption('name')
-        const category = parser.getOption('category')
-        const description = parser.getOption('description')
-        const rarity = parser.getOption('rarity')
+        const name = interaction.options.getString('name')
+        const category = interaction.options.getString('category')
+        const description = interaction.options.getString('description')
+        const rarity = interaction.options.getString('rarity')
+        const requirements = interaction.options.getString('requirements')
+
+        talents = talents.filter(talent => {
+            if (name)
+                if (talent.name.toLowerCase().includes(name.toLowerCase())) return true;
+            if (category)
+                if (talent.category.toLowerCase().includes(category.toLowerCase())) return true;
+            if (description)
+                if (talent.description.toLowerCase().includes(description.toLowerCase())) return true;
+            if (rarity)
+                if ((talent.rarity == rarity)) return true;
+
+
+
+            return true;
+        })
 
         const pages = this.buildTalentsPages(talents)
         const pagination = new Pagination(interaction)
         pagination.addEmbeds(pages)
-        pagination.paginateFields(true)
+        pagination.setOptions({ limit: 1 })
         return pagination.render()
     }
 
@@ -57,6 +74,7 @@ export class TalentsCommand implements Command {
                 .setColor(0x0099FF)
                 .setTitle(talent.name)
                 .setTimestamp()
+                .setFooter({ text: `${entries.length} results` })
                 .addFields(
                     { name: 'Description:', value: '```' + `${talent.description}` + '```' },
                     { name: 'Category:', value: '```' + `${talent.category}` + '```', inline: true },
